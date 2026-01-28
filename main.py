@@ -33,6 +33,7 @@ def main():
 
         for file in files:
             logging.info(f"Читаю файл: {file}")
+            print(f"Читаю файл: {file}")
             sheet = get_sheet_from_file(f"./assets/{file}")
 
             found = get_anchors_coordinates(ANCHORS.keys(), sheet)
