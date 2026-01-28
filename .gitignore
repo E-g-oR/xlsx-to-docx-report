@@ -2,3 +2,4 @@
 /logs
 /output
 latest.log
+/__pycache__
