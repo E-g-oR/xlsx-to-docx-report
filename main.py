@@ -62,11 +62,14 @@ def main():
             consignee = values["Грузополучатель и его адрес:"]
             payment = values["Всего к оплате (9)"]
 
+            payment = float(payment) if payment else 0
+
             numbers.add(number)
             consignees.add(consignee)
             payment_sum += payment
     
 
+        payment_sum = f"{payment_sum:,.2f}"
         logging.info(f"Количество файлов: {len(files)}")
         logging.info(f"Количество номеров: {len(numbers)}")
         logging.info(f"Количество грузополучателей: {len(consignees)}")
@@ -82,6 +85,9 @@ def main():
         logging.info("Создаю документ docx...")
         document = Document()
 
+        logging.info("Пишу параграф с общей суммой...")
+        document.add_paragraph(f"Общая сумма: {payment_sum}")
+
         logging.info("Пишу параграф с номерами...")
         document.add_paragraph(f"Номера: {numbers_formatted}")
 
@@ -89,9 +95,6 @@ def main():
         document.add_paragraph("Грузополучатели:")
         for c in consignees:
             document.add_paragraph(f"– {c}")
-
-        logging.info("Пишу параграф с общей суммой...")
-        document.add_paragraph(f"Общая сумма: {payment_sum}")
         
         logging.info("Сохраняю документ...")
         Path("./output").mkdir(exist_ok=True)
