@@ -3,7 +3,9 @@ from pathlib import Path
 from utils import get_next_right_value, get_last_value_in_row, get_sheet_from_file, get_anchors_coordinates
 from setup_logs import setup_logs
 from docx import Document
-
+import tkinter as tk
+from tkinter import filedialog
+import sys
 
 ANCHORS = {
     "Счет-фактура №": "NEXT_RIGHT",
@@ -16,14 +18,33 @@ rules = {
     "LAST_RIGHT": get_last_value_in_row
 }
 
+def get_working_directory():
+    """Открывает окно выбора папки."""
+    root = tk.Tk()
+    root.withdraw()  # Скрываем основное маленькое окно tkinter
+    root.attributes('-topmost', True)  # Поверх всех окон
+    
+    selected_dir = filedialog.askdirectory(title="Выберите папку с файлами Excel")
+    
+    if not selected_dir:
+        print("Папка не выбрана. Выход...")
+        sys.exit(0)
+        
+    return Path(selected_dir)
+
+
 def main():
-    setup_logs()
+    # В основной части программы:
+    target_dir = get_working_directory()
+
+    setup_logs(target_dir)
     logging.info("Start")
     try:
         # твоя логика
         logging.info("Processing started")
         logging.info("Выбираю файлы .xlsx, начинающиеся с \"УПД\":")
-        files = sorted(p.name for p in Path("./assets").glob("УПД*.xlsx"))
+        # files = sorted(p.name for p in Path("./assets").glob("УПД*.xlsx"))
+        files = sorted(p.name for p in target_dir.glob("УПД*.xlsx"))
 
         numbers = set()
         consignees = set()
@@ -34,7 +55,9 @@ def main():
         for file in files:
             logging.info(f"Читаю файл: {file}")
             print(f"Читаю файл: {file}")
-            sheet = get_sheet_from_file(f"./assets/{file}")
+            # sheet = get_sheet_from_file(f"./assets/{file}")
+            file_path = target_dir / file
+            sheet = get_sheet_from_file(file_path)
 
             found = get_anchors_coordinates(ANCHORS.keys(), sheet)
             missing_anchors = required - found.keys()
@@ -97,8 +120,10 @@ def main():
             document.add_paragraph(f"– {c}")
         
         logging.info("Сохраняю документ...")
-        Path("./output").mkdir(exist_ok=True)
-        document.save("./output/report.docx")
+        
+        output_dir = target_dir / "output"
+        output_dir.mkdir(exist_ok=True)
+        document.save(output_dir / "report.docx")
 
         logging.info("Готово.")
     
