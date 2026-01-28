@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import Iterable
 from datetime import datetime
+import sys
 
 def setup_logging(app_dir: Path) -> Path:
     logs_dir = app_dir / "logs"
@@ -40,7 +41,16 @@ def rotate_logs(app_dir: Path, keep: int = 30):
         except Exception:
             pass
 
+
+
 def setup_logs():
-    app_dir = Path(__file__).resolve().parent  # рядом с exe (в onefile может быть иначе, см. ниже)
+    # Проверяем, запущено ли приложение как скомпилированный EXE
+    if getattr(sys, 'frozen', False):
+        # Если да, берем путь к EXE файлу
+        app_dir = Path(sys.executable).parent
+    else:
+        # Если это обычный .py скрипт
+        app_dir = Path(__file__).resolve().parent
+
     run_log = setup_logging(app_dir)
     rotate_logs(app_dir, keep=30)
