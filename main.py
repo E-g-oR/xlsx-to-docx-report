@@ -8,6 +8,8 @@ import cProfile
 import pstats
 from index_data import index_data
 from stage_1 import get_docx_report_for_all_UPD
+from stage_2 import stage_2
+from stage_3 import stage_3
 
 def get_working_directory():
     """Открывает окно выбора папки."""
@@ -25,8 +27,8 @@ def get_working_directory():
 
 
 def main():
-    target_dir = get_working_directory()
-    # target_dir = Path("./assets")
+    # target_dir = get_working_directory()
+    target_dir = Path("./assets")
 
     setup_logs(target_dir)
     logging.info("Start")
@@ -37,6 +39,10 @@ def main():
         df = index_data(target_dir)
 
         get_docx_report_for_all_UPD(df, target_dir)
+
+        stage_2(df)
+
+        stage_3()
 
         logging.info("Готово.")
     

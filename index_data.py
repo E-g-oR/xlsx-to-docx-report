@@ -7,7 +7,8 @@ data ={"Счет-фактура №": 0,
        "Грузополучатель и его адрес:": 0, 
        "Всего к оплате (9)": -1,
        "Покупатель:": 0,
-       "ИНН/КПП покупателя:": 0
+       "ИНН/КПП покупателя:": 0,
+       "Документ об отгрузке": 0
        }
 
 def find_anchor_coords(anchor: str, data_array: np.ndarray):
@@ -49,6 +50,7 @@ def index_data(folder_path: Path):
     print("Количество:", len(files))
     all_data = [{"file": f, **parse_file(f, folder_path)} for f in files]
     df = pd.DataFrame(all_data)
+    df["Дата"] = df["Документ об отгрузке"].str.extract(r'(\d{2}\.\d{2}\.\d{4})')
     return df
     # 1. Список уникальных номеров УПД
     # unique_numbers = df["Счет-фактура №"].dropna().unique().tolist()
