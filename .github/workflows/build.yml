@@ -1,13 +1,18 @@
-name: Build Windows exe
+name: Build and Secure Release
 
 on:
   push:
     branches:
-      - main
+      - main # Запускается при каждом пуше для проверки (просто сборка)
+    tags:
+      - "v*" # Запускается при создании версии (v1.0, v1.1 и т.д.) для создания РЕЛИЗА
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write # Нужно для загрузки файла в раздел Releases
+      id-token: write # Нужно для аттестации (подтверждения подлинности)
 
     steps:
       - name: Checkout repository
@@ -28,8 +33,43 @@ jobs:
         run: |
           pyinstaller --onefile --name xlsx-to-docx-report main.py
 
-      - name: Upload exe artifact
+      # --- ШАГИ ДЛЯ БЕЗОПАСНИКОВ ---
+
+      - name: Generate SHA-256 Checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist/*.exe -Algorithm SHA256).Hash
+          echo "SHA256_HASH=$hash" >> $env:GITHUB_ENV
+          $hash > dist/checksum.txt
+          echo "Хэш-сумма файла: $hash"
+
+      - name: Attest Build Provenance
+        # Этот шаг создает цифровую подпись от GitHub
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "dist/xlsx-to-docx-report.exe"
+
+      # --- ЗАГРУЗКА РЕЗУЛЬТАТОВ ---
+
+      - name: Upload Artifact (для тестов)
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: dist/*.exe
+          path: dist/xlsx-to-docx-report.exe
+
+      - name: Create GitHub Release
+        # Этот шаг сработает ТОЛЬКО если ты создал тег (v1.0 и т.д.)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/xlsx-to-docx-report.exe
+            dist/checksum.txt
+          body: |
+            ## Отчет безопасности
+            Данный релиз собран автоматически на серверах GitHub.
+            **SHA-256 Hash:** `${{ env.SHA256_HASH }}`
+
+            Для проверки подлинности скачайте файл и сравните его хэш с указанным выше.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
