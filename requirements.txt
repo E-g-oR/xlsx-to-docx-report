@@ -1,2 +1,4 @@
 openpyxl
 python-docx
+pandas
+python_calamine
