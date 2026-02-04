@@ -7,17 +7,21 @@ from docx import Document
 def get_docx_report_for_all_UPD(df: pd.DataFrame, target_dir: Path):
 
     # 1. Список уникальных номеров УПД
-    numbers = df["Счет-фактура №"].dropna().unique().tolist()
+    numbers = df["doc_number"].dropna().unique().tolist()
     # 2. Список уникальных адресов
-    consignees = df["Грузополучатель и его адрес:"].dropna().unique().tolist()
+    consignees = df["client_address"].dropna().unique().tolist()
     # 3. Общая сумма по всем документам
     # errors='coerce' превратит мусор в NaN, чтобы sum() не сломался
-    payment_sum = pd.to_numeric(df["Всего к оплате (9)"], errors='coerce').sum()
+    payment_sum = pd.to_numeric(df["total_sum"], errors='coerce').sum()
 
 
     payment_sum = f"{payment_sum:,.2f}"
     logging.info(f"Количество номеров: {len(numbers)}")
     logging.info(f"Количество грузополучателей: {len(consignees)}")
+    print(f"   Количество номеров: {len(numbers)}")
+    print(f"   Количество грузополучателей: {len(consignees)}")
+    print(f"   Общая сумма: {payment_sum}")
+
 
     numbers_formatted = ", ".join(sorted(numbers))
     
@@ -40,8 +44,10 @@ def get_docx_report_for_all_UPD(df: pd.DataFrame, target_dir: Path):
     for c in consignees:
         document.add_paragraph(f"– {c}")
     
-    logging.info("Сохраняю документ...")
     
+    logging.info("Сохраняю отчет...")
+    print("   Сохраняю отчет...")
     output_dir = target_dir / "output"
     output_dir.mkdir(exist_ok=True)
     document.save(output_dir / "report.docx")
+    print("   Отчет \"report.docx\" сохранен в папке \"output\".")
