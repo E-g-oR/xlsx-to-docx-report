@@ -7,12 +7,12 @@ from docx import Document
 def get_docx_report_for_all_UPD(df: pd.DataFrame, target_dir: Path):
 
     # 1. Список уникальных номеров УПД
-    numbers = df["Счет-фактура №"].dropna().unique().tolist()
+    numbers = df["doc_number"].dropna().unique().tolist()
     # 2. Список уникальных адресов
-    consignees = df["Грузополучатель и его адрес:"].dropna().unique().tolist()
+    consignees = df["client_address"].dropna().unique().tolist()
     # 3. Общая сумма по всем документам
     # errors='coerce' превратит мусор в NaN, чтобы sum() не сломался
-    payment_sum = pd.to_numeric(df["Всего к оплате (9)"], errors='coerce').sum()
+    payment_sum = pd.to_numeric(df["total_sum"], errors='coerce').sum()
 
 
     payment_sum = f"{payment_sum:,.2f}"

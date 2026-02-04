@@ -10,6 +10,7 @@ from index_data import index_data
 from stage_1 import get_docx_report_for_all_UPD
 from stage_2 import stage_2
 from stage_3 import stage_3
+import pandas as pd
 
 def get_working_directory():
     """Открывает окно выбора папки."""
@@ -34,15 +35,19 @@ def main():
     logging.info("Start")
     try:
         logging.info("Processing started")
-        logging.info("Выбираю файлы .xlsx, начинающиеся с \"УПД\":")
+        logging.info("Выбираю файлы .xlsx:")
 
-        df = index_data(target_dir)
+        all_data = index_data(target_dir)
 
+        df = pd.DataFrame(all_data)
+        df["date"] = df["raw_date"].str.extract(r'(\d{2}\.\d{2}\.\d{4})')
+
+        print(df[["doc_type", "client_name", "date", "raw_text"]])
         get_docx_report_for_all_UPD(df, target_dir)
 
         stage_2(df)
 
-        stage_3()
+        stage_3(df, target_dir)
 
         logging.info("Готово.")
     
