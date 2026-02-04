@@ -4,6 +4,7 @@ def stage_2(df: pd.DataFrame):
     results = []
     addresses = pd.read_excel("./assets/Список_адресов.xlsx", engine="calamine",)["Уникальные адреса"].tolist()
     # print(df)
+    print("   Сопоставляю адреса и считаю статистику")
     for address in addresses:
         subset = df[df["client_address"] == address]
 
@@ -22,6 +23,8 @@ def stage_2(df: pd.DataFrame):
                 "Сумма": total_for_addr
             })
     # 2. Превращаем результат в финальную таблицу
+    print("   Сохраняю файл со статистикой по адресам")
     final_lookup = pd.DataFrame(results)
     final_lookup.to_excel("./output/данные-по-адресам.xlsx")
-  
+    print("   Файл сохранен")
+    

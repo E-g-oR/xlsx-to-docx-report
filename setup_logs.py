@@ -28,7 +28,7 @@ def setup_logging(app_dir: Path) -> Path:
     h2.setFormatter(fmt)
     logger.addHandler(h2)
 
-    logging.info("Start. Run log: %s", run_log.name)
+    logging.info("Старт. Лог запуска: %s", run_log.name)
     return run_log
 
 

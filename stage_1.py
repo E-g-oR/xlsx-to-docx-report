@@ -18,6 +18,10 @@ def get_docx_report_for_all_UPD(df: pd.DataFrame, target_dir: Path):
     payment_sum = f"{payment_sum:,.2f}"
     logging.info(f"Количество номеров: {len(numbers)}")
     logging.info(f"Количество грузополучателей: {len(consignees)}")
+    print(f"   Количество номеров: {len(numbers)}")
+    print(f"   Количество грузополучателей: {len(consignees)}")
+    print(f"   Общая сумма: {payment_sum}")
+
 
     numbers_formatted = ", ".join(sorted(numbers))
     
@@ -40,8 +44,10 @@ def get_docx_report_for_all_UPD(df: pd.DataFrame, target_dir: Path):
     for c in consignees:
         document.add_paragraph(f"– {c}")
     
-    logging.info("Сохраняю документ...")
     
+    logging.info("Сохраняю отчет...")
+    print("   Сохраняю отчет...")
     output_dir = target_dir / "output"
     output_dir.mkdir(exist_ok=True)
     document.save(output_dir / "report.docx")
+    print("   Отчет \"report.docx\" сохранен в папке \"output\".")

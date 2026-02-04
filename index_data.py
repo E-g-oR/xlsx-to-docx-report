@@ -3,6 +3,9 @@ import numpy as np
 from pathlib import Path
 from typing import TypedDict, Optional, Literal
 from pathlib import Path
+import logging
+from tqdm import tqdm
+
 
 class DocumentData(TypedDict):
     file_path: Path
@@ -45,9 +48,6 @@ def get_value_right(df: pd.DataFrame, row: int, col: int, index = 0):
     return value
 
 def parse_file(file_path: Path, folder_path: Path) -> DocumentData:
-    print(f"Reading ({file_path}) file...")
-
-
 
     is_upd = "УПД" in file_path.name
 
@@ -97,14 +97,38 @@ def index_data(folder_path: Path):
 
     # Сортируем уже финальный список путей
     files = sorted(files, key=lambda p: p.name)
-    print("Количество:", len(files))
-    
-    all_data = [{"file": f, **parse_file(f, folder_path)} for f in files]
 
+    
+    all_data = []
+    total_files = len(files)
+    print("Количество:", total_files)
+    logging.info(f"Всего файлов: {total_files}")
+
+    # Вместо простого цикла используем tqdm как обертку над списком
+    # desc — это описание, которое будет висеть слева от полоски
+    pbar = tqdm(files, desc="Индексация файлов", unit="file")
+
+
+    for index, f in enumerate(pbar, start=1):
+        # Выводим прогресс: индекс и имя файла
+        # pbar.write(f"[{index}/{total_files}] Обработка: {f.name}...")
+        logging.info(f"[{index}/{total_files}] Обработка: {f.name}...")
+        
+        parsed_results = parse_file(f, folder_path)
+        
+        # Собираем словарь (аналог твоей записи с **)
+        all_data.append(parsed_results)
+
+    logging.info(f"Все файлы прочитаны и обработаны")
     # Собираем все "чистые" имена из УПД в один справочник
     known_clients = {d["client_name"] for d in all_data if d["doc_type"] == "UPD" and d["client_name"]}
+    
+    print(f"🔍 Найдено уникальных клиентов в УПД: {len(known_clients)}")
+    logging.info(f"Справочник клиентов сформирован: {known_clients}")
 
     # "Лечим" счета
+    print("🩹 Сопоставляю счета с найденными клиентами...")
+
     for d in all_data:
         if d["doc_type"] == "INVOICE" and d["raw_text"]:
             for name in known_clients:

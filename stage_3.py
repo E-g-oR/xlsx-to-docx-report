@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 
 def stage_3(df: pd.DataFrame, target_dir: Path):
-    print("\n--- Запуск Этапа 3: Распределение файлов ---")
+    # print("\n--- Запуск Этапа 3: Распределение файлов ---")
     
     # Группируем пути к файлам по именам клиентов
     # Мы используем .dropna(subset=['client_name']), чтобы не упасть на пустых значениях
@@ -20,7 +20,7 @@ def stage_3(df: pd.DataFrame, target_dir: Path):
         # 2. Создаем папку (если её нет)
         client_folder.mkdir(exist_ok=True)
         
-        print(f"Группа [{client_name}]: перемещаю {len(file_paths)} файл(ов)")
+        print(f"   Группа [{client_name}]: перемещаю {len(file_paths)} файл(ов)")
         
         for source_path in file_paths:
             # 3. Формируем финальный путь файла (папка клиента + имя файла)
