@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: write # Нужно для загрузки файла в раздел Releases
       id-token: write # Нужно для аттестации (подтверждения подлинности)
+      attestations: write
 
     steps:
       - name: Checkout repository
