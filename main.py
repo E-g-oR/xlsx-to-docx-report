@@ -62,7 +62,7 @@ def main():
         logging.info("✨ Процесс полностью завершен!")
         print("✨ Процесс полностью завершен!\n")
 
-        input("Нажмите любую клавишу чтобы выйти.")
+        input("Нажмите любую клавишу чтобы выйти.\n")
     
     except Exception as e:
             logging.exception("Fatal error: %s", e)  # автоматически пишет traceback
