@@ -1,6 +1,25 @@
 import shutil
 import pandas as pd
 from pathlib import Path
+import re
+
+def sanitize_for_windows(name: str) -> str:
+    if not isinstance(name, str):
+        name = str(name)
+    
+    # 1. Сначала меняем обычные двойные кавычки на елочки
+    # Попробуем заменить пары кавычек. 
+    # Если кавычка одна или они непарные, этот способ просто заменит их по очереди
+    name = re.sub(r'"([^"]*)"', r'«\1»', name) # Меняет "текст" на «текст»
+    name = name.replace('"', '»') # Заменяет оставшиеся одиночные кавычки
+
+    # 2. Удаляем остальные символы, которые Windows запрещает в путях
+    # / \ : * ? < > |
+    forbidden_chars = r'[\\/*?:"<>|]'
+    name = re.sub(forbidden_chars, "", name)
+
+    # 3. Убираем лишние пробелы по краям
+    return name.strip()
 
 def stage_3(df: pd.DataFrame, target_dir: Path):
     # print("\n--- Запуск Этапа 3: Распределение файлов ---")
@@ -15,7 +34,8 @@ def stage_3(df: pd.DataFrame, target_dir: Path):
 
     for client_name, file_paths in grouped_files.items():
         # 1. Формируем путь к папке клиента
-        client_folder = target_dir / client_name.strip()
+        safe_name = sanitize_for_windows(client_name)
+        client_folder = target_dir / safe_name
         
         # 2. Создаем папку (если её нет)
         client_folder.mkdir(exist_ok=True)
