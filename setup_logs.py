@@ -5,7 +5,7 @@ from datetime import datetime
 import sys
 
 def setup_logging(app_dir: Path) -> Path:
-    logs_dir = app_dir / "logs"
+    logs_dir = app_dir / "output" / "logs"
     runs_dir = logs_dir / "runs"
     runs_dir.mkdir(parents=True, exist_ok=True)
 
@@ -33,7 +33,7 @@ def setup_logging(app_dir: Path) -> Path:
 
 
 def rotate_logs(app_dir: Path, keep: int = 30):
-    runs_dir = app_dir / "logs" / "runs"
+    runs_dir = app_dir / "output" / "logs" / "runs"
     logs = sorted(runs_dir.glob("*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
     for p in logs[keep:]:
         try:
